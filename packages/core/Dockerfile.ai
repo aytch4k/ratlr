@@ -1,0 +1,67 @@
+# Use TensorFlow's official image as base
+FROM tensorflow/tensorflow:latest-gpu
+
+# Install Node.js
+RUN apt-get update && apt-get install -y curl
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get install -y nodejs
+
+# Install Python dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Set working directory
+WORKDIR /app
+
+# Install Node.js dependencies
+COPY package*.json ./
+RUN npm install
+
+# Copy the rest of the application
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Environment variables
+ENV NODE_ENV=development
+ENV TENSORFLOW_DEVICE=GPU
+ENV MODEL_PATH=/app/models
+
+# Create directories for models and data
+RUN mkdir -p /app/models /app/data
+
+# Expose ports for TensorFlow Serving and health checks
+EXPOSE 8501
+EXPOSE 8500
+
+# Start AI service
+CMD ["node", "dist/ai/index.js"]
+
+# Add health check
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8501/health || exit 1
+
+# Create volumes for models and data
+VOLUME ["/app/models", "/app/data"]
+
+# Add Python path
+ENV PYTHONPATH=/app:${PYTHONPATH}
+
+# Install additional ML libraries
+RUN pip install --no-cache-dir \
+    scikit-learn \
+    pandas \
+    numpy \
+    matplotlib \
+    seaborn \
+    keras \
+    torch \
+    transformers
+
+# Install CUDA toolkit for PyTorch
+RUN apt-get update && apt-get install -y nvidia-cuda-toolkit
+
+# Clean up
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/*

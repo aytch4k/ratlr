@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./packages/frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - ratlr_network
+
+  discord_bot:
+    build:
+      context: ./packages/bots
+      dockerfile: Dockerfile.discord
+    volumes:
+      - ./packages/bots:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mqtt
+      - ipfs
+    networks:
+      - ratlr_network
+
+  telegram_bot:
+    build:
+      context: ./packages/bots
+      dockerfile: Dockerfile.telegram
+    volumes:
+      - ./packages/bots:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mqtt
+      - ipfs
+    networks:
+      - ratlr_network
+
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./config/mosquitto:/mosquitto/config
+      - ./data/mosquitto:/mosquitto/data
+      - ./log/mosquitto:/mosquitto/log
+    networks:
+      - ratlr_network
+
+  ipfs:
+    image: ipfs/kubo:latest
+    ports:
+      - "4001:4001"
+      - "5001:5001"
+      - "8080:8080"
+    volumes:
+      - ./data/ipfs:/data/ipfs
+    networks:
+      - ratlr_network
+
+  sqlite:
+    image: keinos/sqlite3:latest
+    volumes:
+      - ./data/sqlite:/data
+    networks:
+      - ratlr_network
+
+  contracts:
+    build:
+      context: ./packages/contracts
+      dockerfile: Dockerfile
+    volumes:
+      - ./packages/contracts:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    networks:
+      - ratlr_network
+
+  ai_service:
+    build:
+      context: ./packages/core
+      dockerfile: Dockerfile.ai
+    volumes:
+      - ./packages/core:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - mqtt
+      - sqlite
+    networks:
+      - ratlr_network
+
+networks:
+  ratlr_network:
+    driver: bridge
+
+volumes:
+  mqtt_data:
+  ipfs_data:
+  sqlite_data:

@@ -1,0 +1,11 @@
+/node_modules
+packages/contracts/.DS_Store
+packages/.DS_Store
+/packages/contracts/artifacts
+/packages/contracts/node_modules
+packages/frontend/.DS_Store
+/packages/frontend/node_modules
+/packages/contracts/typechain-types/@openzeppelin
+/packages/contracts/typechain-types/factories/@openzeppelin
+packages/contracts/.env
+/packages/contracts/typechain-types

@@ -1,0 +1,15 @@
+{
+  "network": "autheoTestnet",
+  "chainId": 785,
+  "libraries": {
+    "erc20DeployerLib": "0x80000CF96005776DD868eDd83D1645282f5F297c",
+    "erc721DeployerLib": "0xE62791De901b73aD5c506d464175d2411227C816",
+    "erc1155DeployerLib": "0x3F0c8593a850a60E7B322C47E7634b82d803fe7D",
+    "tokenTrackerLib": "0x5b4713Ece922462e3ABcC624b7B4C05034a6fe81"
+  },
+  "factory": "0x5f669526728fC28d699eD5442Ec702a8B5de6048",
+  "tokens": {
+    "erc20": "0xa7393Dd2f7841016528A1863C75E2F1207a7A07E"
+  },
+  "timestamp": "2025-02-16T02:25:06.791Z"
+}
